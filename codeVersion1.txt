@@ -1,0 +1,407 @@
+import * as PIXI from "pixi.js";
+import { Keyboard } from "./help";
+import { Contain } from "./help";
+import { ContainBounds } from "./help";
+
+// Aliases
+import Application = PIXI.Application;
+import Container = PIXI.Container;
+import Loader = PIXI.loaders.Loader;
+import Graphics = PIXI.Graphics;
+import TextureCache = PIXI.utils.TextureCache;
+import Sprite = PIXI.Sprite;
+import Text = PIXI.Text;
+import TextStyle = PIXI.TextStyle;
+
+// tslint:disable-next-line:max-classes-per-file
+class Main
+{
+    public init(): void
+    {
+        const app: Application = new Application({
+            width: 900,
+            height: 600,
+            antialias: true,
+            transparent: false,
+            resolution: 1,
+            },
+        );
+        document.body.appendChild(app.view);
+        const gameScenceClass: GameScence = new GameScence();
+        const gameScence: Container = gameScenceClass.gameScence;
+        gameScenceClass.init();
+        app.stage.addChild(gameScence);
+
+        const deltaNum: number = 1;
+        const gameLoop: GameLoop = new GameLoop(deltaNum, gameScenceClass);
+        app.ticker.add((delta: number): void => gameLoop.run());
+    }
+
+    public start(): void
+    {
+        const loadSpriteSheet: Loader = new Loader()
+                                            .add("../assets/tileset.json")
+                                            .add("../images/treasureHunter.json")
+                                            .load(this.init);
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class GameScence
+{
+    public gameScence: Container = new Container();
+    public dungeon: Sprite = new Dungeon().dungeon;
+    public door: Sprite = new Door().door;
+    public explorerClass: Explorer = new Explorer();
+    public explorer: Sprite = this.explorerClass.explorer;
+    public treasure: Sprite = new Treasure().treasure;
+
+    public vx: number = -1;
+    public vy: number = -1;
+
+    public laserGreenList: LaserGreen[] = [];
+    public blobList: Blob[] = [];
+    // tslint:disable-next-line:no-any
+    public decideCollisionList: any[] = [];
+
+    constructor() {}
+
+    public init(): void
+    {
+        const doorX: number = 32;
+        const explorerX: number = 68;
+        const borderWidth: number = 48;
+        const anchorNum: number = 0.5;
+
+        const numOfBlols: number = 6;
+        const spacing: number = 48;
+        const xOffset: number = 150;
+        const speed: number = 2;
+        let direction: number = 1;
+
+        this.gameScence.addChild(this.dungeon);
+        this.gameScence.addChild(this.door);
+        this.gameScence.addChild(this.explorer);
+        this.gameScence.addChild(this.treasure);
+
+        this.door.position.set(doorX, 0);
+        this.explorer.x = explorerX;
+        this.explorer.y = this.gameScence.height / 2 - this.explorer.height / 2;
+        this.explorer.anchor.x = anchorNum;
+        this.explorer.anchor.y = anchorNum;
+        this.treasure.x = this.gameScence.width - this.treasure.width - borderWidth;
+        this.treasure.y = this.gameScence.height / 2 - this.treasure.height / 2;
+
+        for(let i: number = 0; i < numOfBlols; i++)
+        {
+            const blobClass: Blob = new Blob();
+            const blob: Sprite = blobClass.blob;
+
+            const x: number = spacing * i + xOffset;
+            const y: number = randomInt(0, this.gameScence.height - blob.height);
+
+            blob.x = x;
+            blob.y = y;
+
+            blobClass.vy = speed * direction;
+
+            direction *= -1;
+
+            this.blobList.push(blobClass);
+            this.decideCollisionList.push(blob);
+
+            this.gameScence.addChild(blob);
+        }
+
+        function randomInt(min: number, max: number): number {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Keyboard Event below
+        const left: Keyboard = new Keyboard(37);
+        const top: Keyboard = new Keyboard(38);
+        const right: Keyboard = new Keyboard(39);
+        const bottom: Keyboard = new Keyboard(40);
+        const space: Keyboard = new Keyboard(32);
+
+        left.press = (): void => {
+            this.explorerClass.vx = this.vx;
+            // this.explorerClass.vy = 0;
+        };
+
+        left.release = (): void => {
+            if (!right.isDown) {
+                this.explorerClass.vx = 0;
+            }
+        };
+
+        right.press = (): void => {
+            this.explorerClass.vx = -this.vx;
+            // this.explorerClass.vy = 0;
+        };
+
+        right.release = (): void => {
+            if (!left.isDown) {
+                this.explorerClass.vx = 0;
+            }
+        };
+
+        top.press = (): void => {
+            // this.explorerClass.vx = 0;
+            this.explorerClass.vy = this.vx;
+        };
+
+        top.release = (): void => {
+            if (!bottom.isDown) {
+                this.explorerClass.vy = 0;
+            }
+        };
+
+        bottom.press = (): void => {
+            // this.explorerClass.vx = 0;
+            this.explorerClass.vy = -this.vx;
+        };
+
+        bottom.release = (): void => {
+            if (!top.isDown) {
+                this.explorerClass.vy = 0;
+            }
+        };
+
+        space.press = (): void => {
+            const laserGreenClass: LaserGreen = new LaserGreen();
+            const laserGreen: Sprite = laserGreenClass.laserGreen;
+            laserGreen.x = this.explorer.x;
+            laserGreen.y = this.explorer.y;
+            laserGreen.anchor.x = anchorNum;
+            laserGreen.anchor.y = anchorNum;
+            // tslint:disable-next-line:no-magic-numbers
+            laserGreen.rotation = 90 * (Math.PI / 180);
+            this.laserGreenList.push(laserGreenClass);
+            this.decideCollisionList.push(laserGreen);
+
+            this.gameScence.addChild(laserGreen);
+        };
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Dungeon
+{
+    public dungeon: Sprite = new Sprite(PIXI.Texture.fromFrame("dungeon.png"));
+    constructor() {}
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Door
+{
+    public door: Sprite = new Sprite(PIXI.Texture.fromFrame("door.png"));
+    constructor() {}
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Explorer
+{
+    public explorer: Sprite = new Sprite(PIXI.Texture.fromFrame("explorer.png"));
+    public vx: number = 0;
+    public vy: number = 0;
+    public type: string = "explorer";
+    constructor() {}
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Treasure
+{
+    public treasure: Sprite = new Sprite(PIXI.Texture.fromFrame("treasure.png"));
+    constructor() {}
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class LaserGreen
+{
+    public laserGreen: Sprite = new Sprite(PIXI.Texture.fromFrame("laserGreen.png"));
+    public type: string = "laserGreen";
+    constructor() {}
+
+    public updatePosition(vx: number): void
+    {
+        this.laserGreen.x -= vx;
+    }
+
+    public isDestroy(sprite: Sprite, container: ContainBounds): boolean
+    {
+        let destroy: boolean = false;
+        const halfWidth: number = sprite.width / 2;
+        const halfHeight: number = sprite.height / 2;
+        const borderWidth: number = 24; // 符合我用的
+
+        if (sprite.x > container.minX + container.width - halfWidth - borderWidth)
+        {
+            sprite.x = container.minX + container.width - halfWidth - borderWidth;
+            destroy = true;
+        }
+
+        return destroy;
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class Blob
+{
+    public blob: Sprite = new Sprite(PIXI.Texture.fromFrame("blob.png"));
+    public type: string = "blob";
+    public vy: number = 0;
+    constructor() {}
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class GameLoop
+{
+    public delta: number;
+    public gameScenceClass: GameScence;
+    constructor(delta: number, gameScenceClass: GameScence)
+    {
+        this.delta = delta;
+        this.gameScenceClass = gameScenceClass;
+    }
+
+    public run(): void
+    {
+        const minX: number = 28;
+        const minY: number = 10;
+        const width: number = 488;
+        const height: number = 480;
+        this.gameScenceClass.explorer.x += this.gameScenceClass.explorerClass.vx;
+        this.gameScenceClass.explorer.y += this.gameScenceClass.explorerClass.vy;
+
+        // Set the laser go right automatically
+        this.gameScenceClass.laserGreenList.forEach(
+            (laserGreenClass: LaserGreen): void => { laserGreenClass.updatePosition(this.gameScenceClass.vx); }
+        );
+
+        // Explorer not out of play screen
+        Contain.containWhenAnchorCenter(this.gameScenceClass.explorer,
+            new ContainBounds(minX, minY, width, height));
+
+        // When laser is out of play screen then delete it
+        this.gameScenceClass.laserGreenList.forEach(
+            (laserGreenClass: LaserGreen, index: number): void =>
+            {
+                let destroy: boolean = false;
+                destroy = laserGreenClass.isDestroy(laserGreenClass.laserGreen,
+                                                    new ContainBounds(minX, minY, width, height));
+
+                if(destroy)
+                {
+                    this.gameScenceClass.gameScence.removeChild(laserGreenClass.laserGreen);
+                    laserGreenClass.type = "";
+                    this.gameScenceClass.laserGreenList.splice(index, 1);
+                }
+            }
+        );
+
+        this.gameScenceClass.blobList.forEach(
+            (blobClass: Blob): void =>
+            {
+                blobClass.blob.y += blobClass.vy;
+
+                let blobHitsWall: string | undefined = "";
+                blobHitsWall = Contain.containWhenAnchorCenter(blobClass.blob,
+                    new ContainBounds(minX, minY, width, height));
+
+                if (blobHitsWall === "top" || blobHitsWall === "bottom")
+                {
+                    blobClass.vy *= -1;
+                }
+            }
+        );
+
+        // tslint:disable-next-line:no-any
+        const decideList: any[] = this.gameScenceClass.decideCollisionList;
+        // tslint:disable-next-line:prefer-for-of
+        for(let i: number = 0; i < decideList.length; i++)
+        {
+            let checkHit: boolean = false;
+            // tslint:disable-next-line:prefer-for-of
+            for(let j: number = i + 1; j < decideList.length; j++)
+            {
+                const hit: boolean = new HitTestRectangle(decideList[i], decideList[j]).hitDetect();
+                checkHit = hit;
+                if(hit)
+                {
+                    this.gameScenceClass.gameScence.removeChild(decideList[j]);
+                    this.gameScenceClass.gameScence.removeChild(decideList[i]);
+                    decideList.splice(j, 1);
+                    decideList.splice(i, 1);
+                    j--;
+                }
+            }
+            if(checkHit) { i--; }
+        }
+
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class HitTestRectangle
+{
+    public sprite1: Sprite;
+    public sprite2: Sprite;
+
+    constructor(sprite1: Sprite, sprite2: Sprite)
+    {
+        this.sprite1 = sprite1;
+        this.sprite2 = sprite2;
+    }
+
+    public hitDetect(): boolean
+    {
+        let hit: boolean = false;
+
+        // const sprite1CenterX: number = this.sprite1.x + this.sprite1.width / 2;
+        // const sprite1CenterY: number = this.sprite1.y + this.sprite1.height / 2;
+        // const sprite2CenterX: number = this.sprite2.x + this.sprite1.width / 2;
+        // const sprite2CenterY: number = this.sprite2.y + this.sprite1.height / 2;
+
+        const sprite1CenterX: number = this.sprite1.x;
+        const sprite1CenterY: number = this.sprite1.y;
+        const sprite2CenterX: number = this.sprite2.x;
+        const sprite2CenterY: number = this.sprite2.y;
+
+        const sprite1HalfWidth: number = this.sprite1.width / 2;
+        const sprite1HalfHeight: number = this.sprite1.height / 2;
+        const sprite2HalfWidth: number = this.sprite2.width / 2;
+        const sprite2HalfHeight: number = this.sprite2.height / 2;
+
+        const vx: number = sprite1CenterX - sprite2CenterX;
+        const vy: number = sprite1CenterY - sprite2CenterY;
+
+        const combinedHalfWidths: number = sprite1HalfWidth + sprite2HalfWidth;
+        const combinedHalfHeights: number = sprite1HalfHeight + sprite2HalfHeight;
+
+        // Check for a collision on the x axis
+        if (Math.abs(vx) < combinedHalfWidths) {
+
+            // A collision might be occuring. Check for a collision on the y axis
+            if (Math.abs(vy) < combinedHalfHeights) {
+
+            // There's definitely a collision happening
+            hit = true;
+            } else {
+
+            // There's no collision on the y axis
+            hit = false;
+            }
+        } else {
+
+            // There's no collision on the x axis
+            hit = false;
+        }
+
+        // `hit` will be either `true` or `false`
+        return hit;
+    }
+}
+
+const main: Main = new Main();
+main.start();
