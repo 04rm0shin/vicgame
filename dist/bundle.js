@@ -41859,10 +41859,10 @@ var GameScence = /** @class */ (function () {
         this.gameOverScene.visible = false;
         if (this.isMobile === true) {
             this.dungeon
-                .on('pointerdown', this.onDragStart)
-                .on('pointerup', this.onDragEnd)
-                .on('pointerupoutside', this.onDragEnd)
-                .on('pointermove', this.onDragMove);
+                .on("pointerdown", this.onDragStart)
+                .on("pointerup", this.onDragEnd)
+                .on("pointerupoutside", this.onDragEnd)
+                .on("pointermove", this.onDragMove);
         }
         else {
             this.KeyboardAction();
@@ -42339,7 +42339,6 @@ var Subject = /** @class */ (function () {
         }
     };
     Subject.prototype.notifyObservers = function (delta) {
-        // console.log(delta);
         for (var _i = 0, _a = this.observerList; _i < _a.length; _i++) {
             var observer = _a[_i];
             observer.update();
