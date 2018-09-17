@@ -41794,8 +41794,8 @@ var Main = /** @class */ (function () {
     Main.prototype.loadSpriteSheet = function () {
         var _this = this;
         var load = new Loader()
-            .add("../assets/tileset.json")
-            .add("../images/treasureHunter.json")
+            .add("./assets/tileset.json")
+            .add("./images/treasureHunter.json")
             .load(function () { return _this.init(); });
     };
     Main.prototype.init = function () {

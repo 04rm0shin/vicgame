@@ -29,8 +29,8 @@ class Main {
 
     public loadSpriteSheet(): void {
         const load: Loader = new Loader()
-            .add("../assets/tileset.json")
-            .add("../images/treasureHunter.json")
+            .add("./assets/tileset.json")
+            .add("./images/treasureHunter.json")
             .load(() => this.init());
     }
 
