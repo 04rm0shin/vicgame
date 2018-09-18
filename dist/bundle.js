@@ -41857,19 +41857,21 @@ var GameScence = /** @class */ (function () {
             _this.dungeonClass.lastX = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).x;
             _this.dungeonClass.lastY = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).y;
         };
-        this.onDragEnd = function () {
+        this.onDragEnd = function (event) {
             if (_this.state !== _this.playState)
                 return;
             _this.dungeonClass.dragging = false;
             _this.dungeonClass.data = null;
         };
-        this.onDragMove = function () {
+        this.onDragMove = function (event) {
             if (_this.state !== _this.playState)
                 return;
             if (_this.dungeonClass.dragging && _this.dungeonClass.data !== null) {
                 var newPosition = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene);
-                _this.explorer.x += (newPosition.x - _this.dungeonClass.lastX);
-                _this.explorer.y += (newPosition.y - _this.dungeonClass.lastY);
+                _this.explorer.x = newPosition.x; //- this.dungeonClass.lastX);
+                _this.explorer.y = newPosition.y; //- this.dungeonClass.lastY);
+                console.log("x: " + _this.explorer.x + " newPosition.x " + newPosition.x + " this.dungeonClass.lastX " + _this.dungeonClass.lastX);
+                console.log("y: " + _this.explorer.y + " newPosition.y " + newPosition.y + " this.dungeonClass.lasty " + _this.dungeonClass.lastY);
                 _this.dungeonClass.lastX = newPosition.x;
                 _this.dungeonClass.lastY = newPosition.y;
             }

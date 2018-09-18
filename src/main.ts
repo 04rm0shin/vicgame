@@ -117,10 +117,10 @@ class GameScence {
             this.dungeon.interactive = true;
             this.dungeon.buttonMode = true;
             this.dungeon
-                .on("pointerdown", () => this.onDragStart(this.eventPara))
-                .on("pointerup", () => this.onDragEnd())
-                .on("pointerupoutside", () => this.onDragEnd())
-                .on("pointermove", () => this.onDragMove());
+                .on("pointerdown", this.onDragStart)
+                .on("pointerup", this.onDragEnd)
+                .on("pointerupoutside", this.onDragEnd)
+                .on("pointermove", this.onDragMove);
         } else {
             this.KeyboardAction();
         }
@@ -439,7 +439,7 @@ class GameScence {
         };
     }
 
-    private onDragStart(event: Event): void
+    private onDragStart = (event: Event): void =>
     {
         if (this.state !== this.playState) return;
         this.handleLaserAction();
@@ -449,22 +449,22 @@ class GameScence {
         this.dungeonClass.lastY = this.dungeonClass.data.getLocalPosition(this.gameIngScene).y;
     }
 
-    private onDragEnd(): void
+    private onDragEnd = (): void =>
     {
         if (this.state !== this.playState) return;
         this.dungeonClass.dragging = false;
         this.dungeonClass.data = null;
     }
 
-    private onDragMove(): void
+    private onDragMove = (): void =>
     {
         if (this.state !== this.playState) return;
 
         if(this.dungeonClass.dragging && this.dungeonClass.data !== null)
         {
             const newPosition: PIXI.Point = this.dungeonClass.data.getLocalPosition(this.gameIngScene);
-            this.explorer.x += (newPosition.x - this.dungeonClass.lastX);
-            this.explorer.y += (newPosition.y - this.dungeonClass.lastY);
+            this.explorer.x = (newPosition.x - this.dungeonClass.lastX);
+            this.explorer.y = (newPosition.y - this.dungeonClass.lastY);
 
             this.dungeonClass.lastX = newPosition.x;
             this.dungeonClass.lastY = newPosition.y;
