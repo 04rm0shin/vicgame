@@ -301,7 +301,7 @@ class GameScence {
         // Is less than zero, end the game and display "You lost!"
         if (this.healthBarClass.outer.width < 0) {
             this.gameOver();
-            this.message.text = "You lost!";
+            this.message.text = "You lost! wwwwwwwww";
         }
 
         // If the explorer has brought the treasure to the exit,
