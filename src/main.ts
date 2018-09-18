@@ -99,6 +99,8 @@ class GameScence {
     public blobPool: BlobPool = new BlobPool();
     public laserGreenPool: LaserGreenPool = new LaserGreenPool();
 
+    public eventPara: Event;
+
     constructor(app: Application) {
         this.app = app;
     }
@@ -113,10 +115,10 @@ class GameScence {
 
         if (this.isMobile === true) {
             this.dungeon
-                .on("pointerdown", this.onDragStart)
-                .on("pointerup", this.onDragEnd)
-                .on("pointerupoutside", this.onDragEnd)
-                .on("pointermove", this.onDragMove);
+                .on("pointerdown", () => this.onDragStart(this.eventPara))
+                .on("pointerup", () => this.onDragEnd())
+                .on("pointerupoutside", () => this.onDragEnd())
+                .on("pointermove", () => this.onDragMove());
         } else {
             this.KeyboardAction();
         }
