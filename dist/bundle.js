@@ -41811,6 +41811,7 @@ var Main = /** @class */ (function () {
 // tslint:disable-next-line:max-classes-per-file
 var GameScence = /** @class */ (function () {
     function GameScence(app) {
+        var _this = this;
         this.subject = new observer_1.Subject();
         this.isMobile = Boolean(navigator.userAgent.match(/Android|iPhone|iPad|iPod/i));
         this.gameStartScene = new Container();
@@ -41847,6 +41848,32 @@ var GameScence = /** @class */ (function () {
         this.message = new Text("The End!", this.style);
         this.blobPool = new BlobPool();
         this.laserGreenPool = new LaserGreenPool();
+        this.onDragStart = function (event) {
+            if (_this.state !== _this.playState)
+                return;
+            _this.handleLaserAction();
+            _this.dungeonClass.dragging = true;
+            _this.dungeonClass.data = event.data;
+            _this.dungeonClass.lastX = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).x;
+            _this.dungeonClass.lastY = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).y;
+        };
+        this.onDragEnd = function () {
+            if (_this.state !== _this.playState)
+                return;
+            _this.dungeonClass.dragging = false;
+            _this.dungeonClass.data = null;
+        };
+        this.onDragMove = function () {
+            if (_this.state !== _this.playState)
+                return;
+            if (_this.dungeonClass.dragging && _this.dungeonClass.data !== null) {
+                var newPosition = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene);
+                _this.explorer.x += (newPosition.x - _this.dungeonClass.lastX);
+                _this.explorer.y += (newPosition.y - _this.dungeonClass.lastY);
+                _this.dungeonClass.lastX = newPosition.x;
+                _this.dungeonClass.lastY = newPosition.y;
+            }
+        };
         this.app = app;
     }
     GameScence.prototype.setup = function () {
@@ -41857,18 +41884,17 @@ var GameScence = /** @class */ (function () {
         this.gameIngScene.visible = false;
         this.app.stage.addChild(this.gameOverScene);
         this.gameOverScene.visible = false;
-        if (this.isMobile === true) {
-            this.dungeon.interactive = true;
-            this.dungeon.buttonMode = true;
-            this.dungeon
-                .on("pointerdown", function () { return _this.onDragStart(_this.eventPara); })
-                .on("pointerup", function () { return _this.onDragEnd(); })
-                .on("pointerupoutside", function () { return _this.onDragEnd(); })
-                .on("pointermove", function () { return _this.onDragMove(); });
-        }
-        else {
-            this.KeyboardAction();
-        }
+        // if (this.isMobile === true) {
+        this.dungeon.interactive = true;
+        this.dungeon.buttonMode = true;
+        this.dungeon
+            .on("pointerdown", this.onDragStart)
+            .on("pointerup", this.onDragEnd)
+            .on("pointerupoutside", this.onDragEnd)
+            .on("pointermove", this.onDragMove);
+        // } else {
+        // this.KeyboardAction();
+        // }
         this.startScence();
         this.app.ticker.add(function (delta) { return _this.gameLoop(delta); });
     };
@@ -42115,32 +42141,6 @@ var GameScence = /** @class */ (function () {
         space.release = function () {
             _this.shooting = false;
         };
-    };
-    GameScence.prototype.onDragStart = function (event) {
-        if (this.state !== this.playState)
-            return;
-        this.handleLaserAction();
-        this.dungeonClass.dragging = true;
-        this.dungeonClass.data = event.data;
-        this.dungeonClass.lastX = this.dungeonClass.data.getLocalPosition(this.gameIngScene).x;
-        this.dungeonClass.lastY = this.dungeonClass.data.getLocalPosition(this.gameIngScene).y;
-    };
-    GameScence.prototype.onDragEnd = function () {
-        if (this.state !== this.playState)
-            return;
-        this.dungeonClass.dragging = false;
-        this.dungeonClass.data = null;
-    };
-    GameScence.prototype.onDragMove = function () {
-        if (this.state !== this.playState)
-            return;
-        if (this.dungeonClass.dragging && this.dungeonClass.data !== null) {
-            var newPosition = this.dungeonClass.data.getLocalPosition(this.gameIngScene);
-            this.explorer.x += (newPosition.x - this.dungeonClass.lastX);
-            this.explorer.y += (newPosition.y - this.dungeonClass.lastY);
-            this.dungeonClass.lastX = newPosition.x;
-            this.dungeonClass.lastY = newPosition.y;
-        }
     };
     return GameScence;
 }());
