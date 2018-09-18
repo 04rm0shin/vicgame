@@ -15,6 +15,8 @@ import TextureCache = PIXI.utils.TextureCache;
 import Sprite = PIXI.Sprite;
 import Text = PIXI.Text;
 import TextStyle = PIXI.TextStyle;
+import Event = PIXI.interaction.InteractionEvent;
+import Data = PIXI.interaction.InteractionData;
 
 // tslint:disable-next-line:max-classes-per-file
 class Main {
@@ -433,25 +435,46 @@ class GameScence {
         };
     }
 
-    private onDragStart(): void
+    private onDragStart(event: Event): void
     {
         if (this.state !== this.playState) return;
+        this.handleLaserAction();
+        this.dungeonClass.dragging = true;
+        this.dungeonClass.data = event.data;
+        this.dungeonClass.lastX = this.dungeonClass.data.getLocalPosition(this.gameIngScene).x;
+        this.dungeonClass.lastY = this.dungeonClass.data.getLocalPosition(this.gameIngScene).y;
     }
 
     private onDragEnd(): void
     {
         if (this.state !== this.playState) return;
+        this.dungeonClass.dragging = false;
+        this.dungeonClass.data = null;
     }
 
     private onDragMove(): void
     {
         if (this.state !== this.playState) return;
+
+        if(this.dungeonClass.dragging && this.dungeonClass.data !== null)
+        {
+            const newPosition: PIXI.Point = this.dungeonClass.data.getLocalPosition(this.gameIngScene);
+            this.explorer.x += (newPosition.x - this.dungeonClass.lastX);
+            this.explorer.y += (newPosition.y - this.dungeonClass.lastY);
+
+            this.dungeonClass.lastX = newPosition.x;
+            this.dungeonClass.lastY = newPosition.y;
+        }
     }
 }
 
 // tslint:disable-next-line:max-classes-per-file
 class Dungeon {
     public dungeon: Sprite = new Sprite(PIXI.Texture.fromFrame("dungeon.png"));
+    public dragging: boolean = false;
+    public data: Data | null;
+    public lastX: number;
+    public lastY: number;
 }
 
 // tslint:disable-next-line:max-classes-per-file
