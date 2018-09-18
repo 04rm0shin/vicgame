@@ -134,6 +134,7 @@ class GameScence {
 
     public startScence(): void {
         this.gameStartScene.addChild(this.playButton);
+        this.gameStartScene.addChild(this.explorer);
 
         this.playButton.interactive = true;
         this.playButton.buttonMode = true;
