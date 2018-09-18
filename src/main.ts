@@ -171,7 +171,7 @@ class GameScence {
         this.blobPool.init();
         this.laserGreenPool.init();
 
-        this.handleBlobInit();
+        // this.handleBlobInit();
 
         this.state = this.playState;
     }
