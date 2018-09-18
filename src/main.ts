@@ -442,7 +442,7 @@ class GameScence {
     private onDragStart = (event: Event): void =>
     {
         if (this.state !== this.playState) return;
-        this.handleLaserAction();
+        this.shooting = true;
         this.dungeonClass.dragging = true;
         this.dungeonClass.data = event.data;
         this.dungeonClass.lastX = this.dungeonClass.data.getLocalPosition(this.gameIngScene).x;
@@ -452,6 +452,7 @@ class GameScence {
     private onDragEnd = (): void =>
     {
         if (this.state !== this.playState) return;
+        this.shooting = false;
         this.dungeonClass.dragging = false;
         this.dungeonClass.data = null;
     }
@@ -463,8 +464,8 @@ class GameScence {
         if(this.dungeonClass.dragging && this.dungeonClass.data !== null)
         {
             const newPosition: PIXI.Point = this.dungeonClass.data.getLocalPosition(this.gameIngScene);
-            this.explorer.x = (newPosition.x - this.dungeonClass.lastX);
-            this.explorer.y = (newPosition.y - this.dungeonClass.lastY);
+            this.explorer.x += (newPosition.x - this.dungeonClass.lastX);
+            this.explorer.y += (newPosition.y - this.dungeonClass.lastY);
 
             this.dungeonClass.lastX = newPosition.x;
             this.dungeonClass.lastY = newPosition.y;
