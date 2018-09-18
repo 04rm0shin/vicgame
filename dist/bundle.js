@@ -41851,7 +41851,7 @@ var GameScence = /** @class */ (function () {
         this.onDragStart = function (event) {
             if (_this.state !== _this.playState)
                 return;
-            _this.shooting = true;
+            _this.shooting = false;
             _this.dungeonClass.dragging = true;
             _this.dungeonClass.data = event.data;
             _this.dungeonClass.lastX = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).x;
@@ -41860,7 +41860,7 @@ var GameScence = /** @class */ (function () {
         this.onDragEnd = function () {
             if (_this.state !== _this.playState)
                 return;
-            _this.shooting = false;
+            _this.shooting = true;
             _this.dungeonClass.dragging = false;
             _this.dungeonClass.data = null;
         };

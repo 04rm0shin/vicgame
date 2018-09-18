@@ -442,7 +442,7 @@ class GameScence {
     private onDragStart = (event: Event): void =>
     {
         if (this.state !== this.playState) return;
-        this.shooting = true;
+        this.shooting = false;
         this.dungeonClass.dragging = true;
         this.dungeonClass.data = event.data;
         this.dungeonClass.lastX = this.dungeonClass.data.getLocalPosition(this.gameIngScene).x;
@@ -452,7 +452,7 @@ class GameScence {
     private onDragEnd = (): void =>
     {
         if (this.state !== this.playState) return;
-        this.shooting = false;
+        this.shooting = true;
         this.dungeonClass.dragging = false;
         this.dungeonClass.data = null;
     }
