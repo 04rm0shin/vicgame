@@ -41857,21 +41857,19 @@ var GameScence = /** @class */ (function () {
             _this.dungeonClass.lastX = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).x;
             _this.dungeonClass.lastY = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).y;
         };
-        this.onDragEnd = function (event) {
+        this.onDragEnd = function () {
             if (_this.state !== _this.playState)
                 return;
             _this.dungeonClass.dragging = false;
             _this.dungeonClass.data = null;
         };
-        this.onDragMove = function (event) {
+        this.onDragMove = function () {
             if (_this.state !== _this.playState)
                 return;
             if (_this.dungeonClass.dragging && _this.dungeonClass.data !== null) {
                 var newPosition = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene);
-                _this.explorer.x = newPosition.x; //- this.dungeonClass.lastX);
-                _this.explorer.y = newPosition.y; //- this.dungeonClass.lastY);
-                console.log("x: " + _this.explorer.x + " newPosition.x " + newPosition.x + " this.dungeonClass.lastX " + _this.dungeonClass.lastX);
-                console.log("y: " + _this.explorer.y + " newPosition.y " + newPosition.y + " this.dungeonClass.lasty " + _this.dungeonClass.lastY);
+                _this.explorer.x = (newPosition.x - _this.dungeonClass.lastX);
+                _this.explorer.y = (newPosition.y - _this.dungeonClass.lastY);
                 _this.dungeonClass.lastX = newPosition.x;
                 _this.dungeonClass.lastY = newPosition.y;
             }
@@ -41886,17 +41884,18 @@ var GameScence = /** @class */ (function () {
         this.gameIngScene.visible = false;
         this.app.stage.addChild(this.gameOverScene);
         this.gameOverScene.visible = false;
-        // if (this.isMobile === true) {
-        this.dungeon.interactive = true;
-        this.dungeon.buttonMode = true;
-        this.dungeon
-            .on("pointerdown", this.onDragStart)
-            .on("pointerup", this.onDragEnd)
-            .on("pointerupoutside", this.onDragEnd)
-            .on("pointermove", this.onDragMove);
-        // } else {
-        // this.KeyboardAction();
-        // }
+        if (this.isMobile === true) {
+            this.dungeon.interactive = true;
+            this.dungeon.buttonMode = true;
+            this.dungeon
+                .on("pointerdown", this.onDragStart)
+                .on("pointerup", this.onDragEnd)
+                .on("pointerupoutside", this.onDragEnd)
+                .on("pointermove", this.onDragMove);
+        }
+        else {
+            this.KeyboardAction();
+        }
         this.startScence();
         this.app.ticker.add(function (delta) { return _this.gameLoop(delta); });
     };
