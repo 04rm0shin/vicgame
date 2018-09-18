@@ -114,6 +114,8 @@ class GameScence {
         this.gameOverScene.visible = false;
 
         if (this.isMobile === true) {
+            this.dungeon.interactive = true;
+            this.dungeon.buttonMode = true;
             this.dungeon
                 .on("pointerdown", () => this.onDragStart(this.eventPara))
                 .on("pointerup", () => this.onDragEnd())
@@ -134,7 +136,6 @@ class GameScence {
 
     public startScence(): void {
         this.gameStartScene.addChild(this.playButton);
-        this.gameStartScene.addChild(this.explorer);
 
         this.playButton.interactive = true;
         this.playButton.buttonMode = true;
