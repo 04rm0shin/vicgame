@@ -41851,7 +41851,7 @@ var GameScence = /** @class */ (function () {
         this.onDragStart = function (event) {
             if (_this.state !== _this.playState)
                 return;
-            _this.handleLaserAction();
+            _this.shooting = true;
             _this.dungeonClass.dragging = true;
             _this.dungeonClass.data = event.data;
             _this.dungeonClass.lastX = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene).x;
@@ -41860,6 +41860,7 @@ var GameScence = /** @class */ (function () {
         this.onDragEnd = function () {
             if (_this.state !== _this.playState)
                 return;
+            _this.shooting = false;
             _this.dungeonClass.dragging = false;
             _this.dungeonClass.data = null;
         };
@@ -41868,8 +41869,8 @@ var GameScence = /** @class */ (function () {
                 return;
             if (_this.dungeonClass.dragging && _this.dungeonClass.data !== null) {
                 var newPosition = _this.dungeonClass.data.getLocalPosition(_this.gameIngScene);
-                _this.explorer.x = (newPosition.x - _this.dungeonClass.lastX);
-                _this.explorer.y = (newPosition.y - _this.dungeonClass.lastY);
+                _this.explorer.x += (newPosition.x - _this.dungeonClass.lastX);
+                _this.explorer.y += (newPosition.y - _this.dungeonClass.lastY);
                 _this.dungeonClass.lastX = newPosition.x;
                 _this.dungeonClass.lastY = newPosition.y;
             }
