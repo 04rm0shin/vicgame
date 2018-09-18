@@ -41858,11 +41858,13 @@ var GameScence = /** @class */ (function () {
         this.app.stage.addChild(this.gameOverScene);
         this.gameOverScene.visible = false;
         if (this.isMobile === true) {
+            this.dungeon.interactive = true;
+            this.dungeon.buttonMode = true;
             this.dungeon
-                .on("pointerdown", this.onDragStart)
-                .on("pointerup", this.onDragEnd)
-                .on("pointerupoutside", this.onDragEnd)
-                .on("pointermove", this.onDragMove);
+                .on("pointerdown", function () { return _this.onDragStart(_this.eventPara); })
+                .on("pointerup", function () { return _this.onDragEnd(); })
+                .on("pointerupoutside", function () { return _this.onDragEnd(); })
+                .on("pointermove", function () { return _this.onDragMove(); });
         }
         else {
             this.KeyboardAction();
@@ -42005,7 +42007,7 @@ var GameScence = /** @class */ (function () {
         // Is less than zero, end the game and display "You lost!"
         if (this.healthBarClass.outer.width < 0) {
             this.gameOver();
-            this.message.text = "You lost!";
+            this.message.text = "You WWW lost!";
         }
         // If the explorer has brought the treasure to the exit,
         // End the game and display "You won!"
@@ -42114,17 +42116,31 @@ var GameScence = /** @class */ (function () {
             _this.shooting = false;
         };
     };
-    GameScence.prototype.onDragStart = function () {
+    GameScence.prototype.onDragStart = function (event) {
         if (this.state !== this.playState)
             return;
+        this.handleLaserAction();
+        this.dungeonClass.dragging = true;
+        this.dungeonClass.data = event.data;
+        this.dungeonClass.lastX = this.dungeonClass.data.getLocalPosition(this.gameIngScene).x;
+        this.dungeonClass.lastY = this.dungeonClass.data.getLocalPosition(this.gameIngScene).y;
     };
     GameScence.prototype.onDragEnd = function () {
         if (this.state !== this.playState)
             return;
+        this.dungeonClass.dragging = false;
+        this.dungeonClass.data = null;
     };
     GameScence.prototype.onDragMove = function () {
         if (this.state !== this.playState)
             return;
+        if (this.dungeonClass.dragging && this.dungeonClass.data !== null) {
+            var newPosition = this.dungeonClass.data.getLocalPosition(this.gameIngScene);
+            this.explorer.x += (newPosition.x - this.dungeonClass.lastX);
+            this.explorer.y += (newPosition.y - this.dungeonClass.lastY);
+            this.dungeonClass.lastX = newPosition.x;
+            this.dungeonClass.lastY = newPosition.y;
+        }
     };
     return GameScence;
 }());
@@ -42132,6 +42148,7 @@ var GameScence = /** @class */ (function () {
 var Dungeon = /** @class */ (function () {
     function Dungeon() {
         this.dungeon = new Sprite(PIXI.Texture.fromFrame("dungeon.png"));
+        this.dragging = false;
     }
     return Dungeon;
 }());

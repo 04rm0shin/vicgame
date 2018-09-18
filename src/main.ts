@@ -171,7 +171,7 @@ class GameScence {
         this.blobPool.init();
         this.laserGreenPool.init();
 
-        // this.handleBlobInit();
+        this.handleBlobInit();
 
         this.state = this.playState;
     }
@@ -301,7 +301,7 @@ class GameScence {
         // Is less than zero, end the game and display "You lost!"
         if (this.healthBarClass.outer.width < 0) {
             this.gameOver();
-            this.message.text = "You lost! wwwwwwwww";
+            this.message.text = "You WWW lost!";
         }
 
         // If the explorer has brought the treasure to the exit,
